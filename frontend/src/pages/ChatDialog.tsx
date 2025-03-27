@@ -5,7 +5,7 @@ import { MessagePage } from "./MessagePage";
 import { RoomMessageData } from "@/helpers";
 import { useState } from "react";
 
-export function RTCDialog({ isRoomFull, messages }: { isRoomFull: boolean; messages: RoomMessageData[] }) {
+export function ChatDialog({ isRoomFull, messages }: { isRoomFull: boolean; messages: RoomMessageData[] }) {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   return (

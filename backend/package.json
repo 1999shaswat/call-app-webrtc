@@ -16,10 +16,13 @@
   "type": "module",
   "license": "ISC",
   "dependencies": {
+    "express": "^4.21.2",
     "nanoid": "^5.0.9",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
+    "@types/express": "^5.0.0",
+    "mkcert": "^3.2.0",
     "nodemon": "^3.1.9"
   }
 }

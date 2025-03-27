@@ -67,7 +67,7 @@ export default function Home({ setView }: { setView: (view: "home" | "room") => 
         <Input
           type="text"
           className="px-4 py-2 border border-[#E4E7EB] rounded-lg text-[#3B4C5A]"
-          onChange={(e) => setRoomIdInput(e.target.value)}
+          onChange={(e) => setRoomIdInput(e.target.value.toUpperCase())}
           placeholder="Room code"
           value={roomIdInput}
         />

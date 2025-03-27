@@ -1,5 +1,5 @@
 import Header from "@/components/header";
-import { RTCDialog } from "@/pages/RTCDialog";
+import { ChatDialog } from "@/pages/ChatDialog";
 import { copyToClipboard } from "@/helpers";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
@@ -7,16 +7,17 @@ import { useEffect, useState } from "react";
 import { useAppContext } from "@/Context";
 import { RTCCallPage } from "./RTCCallPage";
 import { RequestUpdateData, RoomMessageData } from "@/helpers";
+import { RtcProvider } from "@/RtcContext";
 
 export default function Room() {
-  const { thisRoomId, socket, setOtherParty, thisUserId } = useAppContext();
+  const { thisRoomId, socket, setOtherPartySocketId, thisUserId } = useAppContext();
   const [messages, setMessages] = useState<RoomMessageData[]>([]);
   const [isRoomFull, setIsRoomFull] = useState(false);
 
   useEffect(() => {
     if (socket && socket.connected) {
       socket.on("roomUpdate", (response) => {
-        setOtherParty(response.otherParty);
+        setOtherPartySocketId(response.otherParty);
         setIsRoomFull(response.isRoomFull);
       });
       socket.on("roomMessage", (response) => {
@@ -45,10 +46,12 @@ export default function Room() {
           <Copy className="cursor-pointer text-gray-400 hover:text-gray-600" onClick={() => copyToClipboard(thisRoomId)} size={16} />
         </div>
         <div className="font-semibold flex items-center gap-1">
-          <RTCDialog isRoomFull={isRoomFull} messages={messages} />
+          <ChatDialog isRoomFull={isRoomFull} messages={messages} />
         </div>
       </div>
-      <RTCCallPage />
+      <RtcProvider>
+        <RTCCallPage />
+      </RtcProvider>
     </div>
   );
 }

@@ -27,11 +27,15 @@ export function log_error(err: any) {
 // ~~ INTERFACES ~~
 
 // server to client
+
 // RTC
-export interface RtcEventResponse {
-  type: "video-offer" | "video-answer" | "new-ice-candidate" | "hang-up";
-  data: string;
-}
+
+// NOTE:delete if works
+// export interface RtcEventResponse {
+//   type: "video-offer" | "video-answer" | "new-ice-candidate" | "hang-up";
+//   data: string;
+// }
+
 export interface NewUserIdResponse {
   userId: string;
 }
@@ -64,15 +68,29 @@ export interface ServerToClientEvents {
   joinRoom: (response: JoinRoomResponse) => void;
   roomUpdate: (response: RoomUpdateResponse) => void;
   roomMessage: (response: RoomMessageData) => void;
-  rtcEvent: (response: RtcEventResponse) => void;
+  // rtcEvent: (response: RtcEventResponse) => void; //NOTE:delete if works
+  newOfferAwaiting: (offerObj: OfferObject) => void;
+  answerResponse: (offerToUpdate: OfferObject) => void;
+  receivedIceCandidateFromServer: (iceCandidate: RTCIceCandidate) => void;
 }
 
 // RTC
-export interface RtcEventData {
-  type: "video-offer" | "video-answer" | "new-ice-candidate" | "hang-up";
-  target: string;
-  data: string;
+export interface OfferObject {
+  src: string;
+  offer: RTCSessionDescriptionInit;
+  offerIceCandidates: RTCIceCandidate[];
+  dest: string | null;
+  answer: RTCSessionDescriptionInit | null;
+  answerIceCandidates: RTCIceCandidate[];
 }
+
+//NOTE:delete if works
+// export interface RtcEventData {
+//   type: "video-offer" | "video-answer" | "new-ice-candidate" | "hang-up";
+//   target: string;
+//   data: string;
+// }
+
 interface JoinRoomData {
   userName: string;
   roomId: string;
@@ -94,7 +112,10 @@ export interface ClientToServerEvents {
   joinRoom: (data: JoinRoomData) => void;
   sendMessage: (data: MessageData) => void;
   requestRoomUpdate: (data: RequestUpdateData) => void;
-  rtcEvent: (data: RtcEventData) => void;
+  // rtcEvent: (data: RtcEventData) => void; -> NOTE:delete if works
+  newOffer: ({ offer, targetId }: { offer: RTCSessionDescriptionInit; targetId: string }) => void;
+  newAnswer: (offerObj: OfferObject, ackFunction: (response: any) => void) => void;
+  sendIceCandidateToServer: ({ iceCandidate, didIOffer }: { iceCandidate: RTCIceCandidate; didIOffer: boolean }) => void;
 }
 
 export interface InterServerEvents {

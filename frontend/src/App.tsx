@@ -1,4 +1,6 @@
 import "./App.css";
+
+import adapter from "webrtc-adapter";
 import Home from "./pages/Home";
 import Room from "./pages/Room";
 import { AppProvider } from "./Context";
@@ -7,6 +9,7 @@ import { Toaster } from "sonner";
 
 function App() {
   const [view, setView] = useState<"home" | "room">("home");
+  // const [view, setView] = useState<"home" | "room">("room");
   return (
     <AppProvider>
       <div className="bg-yellow-50 min-h-screen">

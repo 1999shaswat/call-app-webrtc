@@ -9,8 +9,8 @@ interface AppContextType {
   thisRoomId: string;
   setThisRoomId: (roomId: string) => void;
   socket: Socket<ServerToClientEvents, ClientToServerEvents> | null;
-  otherParty: string;
-  setOtherParty: (socketId: string) => void;
+  otherPartySocketId: string;
+  setOtherPartySocketId: (socketId: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -30,7 +30,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [socket, setSocket] = useState<Socket<ServerToClientEvents, ClientToServerEvents> | null>(null);
 
   useEffect(() => {
-    const s = io("192.168.29.91:8000");
+    const s = io("https://192.168.29.91:8000");
     console.log("connecting");
 
     setSocket(s);
@@ -50,8 +50,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         thisRoomId,
         setThisRoomId,
         socket,
-        otherParty,
-        setOtherParty,
+        otherPartySocketId: otherParty,
+        setOtherPartySocketId: setOtherParty,
       }}
     >
       {children}

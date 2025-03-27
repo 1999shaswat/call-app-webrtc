@@ -1,10 +1,28 @@
-import { createServer } from "http";
 import { Server } from "socket.io";
+import { readFileSync } from "fs";
 import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from "./events.js";
-import { forwardMessage, forwardRTCEvent, getNewRoomId, getNewUserId, handleDisconnect, joinRoom, sendRoomStatusData } from "./methods.js";
+import {
+  forwardMessage,
+  getNewRoomId,
+  getNewUserId,
+  handleDisconnect,
+  joinRoom,
+  newAnswerEvent,
+  newOfferEvent,
+  sendIceCandidateEvent,
+  sendRoomStatusData,
+} from "./methods.js";
+import { createServer } from "https";
+import express from "express";
 
-const httpServer = createServer();
-const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(httpServer, {
+const app = express();
+
+const key = readFileSync("certs/cert.key");
+const cert = readFileSync("certs/cert.crt");
+
+const expressServer = createServer({ key, cert }, app);
+
+const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(expressServer, {
   cors: {
     // origin: "http://localhost:5173",
     origin: "*", // Allow all origins
@@ -40,11 +58,28 @@ io.on("connection", (socket) => {
     forwardMessage(io, data, socket.id);
   });
 
-  socket.on("rtcEvent", (data) => {
-    forwardRTCEvent(io, data);
-  });
+  //NOTE:delete if works
+  // socket.on("rtcEvent", (data) => {
+  //   forwardRTCEvent(io, data);
+  // });
 
   // rtc handshake
+  socket.on("newOffer", ({ offer, targetId }) => {
+    console.log("newOffer", offer, targetId, socket.id);
+
+    newOfferEvent(io, socket.id, offer, targetId);
+  });
+
+  socket.on("newAnswer", (offerObj, ackFunction) => {
+    console.log("newAnswer", offerObj);
+    newAnswerEvent(io, socket.id, offerObj, ackFunction);
+  });
+
+  socket.on("sendIceCandidateToServer", ({ iceCandidate, didIOffer }) => {
+    console.log("sendIceCandidateToServer", iceCandidate, didIOffer);
+    sendIceCandidateEvent(io, socket.id, iceCandidate, didIOffer);
+  });
+
   // handle leave room / disconnect
   socket.on("disconnecting", () => {
     handleDisconnect(io, socket.id);
@@ -52,6 +87,6 @@ io.on("connection", (socket) => {
 });
 
 // httpServer.listen(8000);
-httpServer.listen(8000, "0.0.0.0", () => {
-  console.log("Server running on http://0.0.0.0:8000");
+expressServer.listen(8000, "0.0.0.0", () => {
+  console.log("Server running on https://0.0.0.0:8000");
 });

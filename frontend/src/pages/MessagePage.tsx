@@ -8,7 +8,7 @@ import { Socket } from "socket.io-client";
 
 export function MessagePage({ isRoomFull, messages }: { isRoomFull: boolean; messages: RoomMessageData[] }) {
   const [userInput, setUserInput] = useState("");
-  const { socket, otherParty } = useAppContext();
+  const { socket, otherPartySocketId } = useAppContext();
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -43,7 +43,7 @@ export function MessagePage({ isRoomFull, messages }: { isRoomFull: boolean; mes
         <Button
           type="button"
           className="bg-[#B8EBD0] hover:bg-[#A4E0C3] text-[#35664C] font-semibold px-8 py-2 rounded-lg shadow"
-          onClick={() => sendMessage(otherParty, userInput, setUserInput, socket)}
+          onClick={() => sendMessage(otherPartySocketId, userInput, setUserInput, socket)}
           disabled={!isRoomFull || !userInput.length}
         >
           <SendHorizontal />
