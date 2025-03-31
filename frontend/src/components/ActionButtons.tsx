@@ -25,10 +25,14 @@ export function CallInfo({ message }: { message: string }) {
   );
 }
 
-export function StartCall({ call }: { call: () => Promise<void> }) {
+export function StartCall({ call, isRoomFull }: { call: () => Promise<void>; isRoomFull: boolean }) {
   return (
     <div className="flex">
-      <Button className="flex-1 bg-green-500 hover:bg-green-600 text-white" onClick={call}>
+      <Button
+        className={`${isRoomFull ? "animate-shine" : ""} flex-1 bg-green-500 hover:bg-green-600 text-white `}
+        onClick={call}
+        disabled={!isRoomFull}
+      >
         <PhoneCall />
         Call
       </Button>
@@ -60,6 +64,7 @@ export function InCallActionButtons({
   localStream,
   peerConnection,
   setShowInCallUI,
+  ShowRemoteFeed,
 }: {
   callStatus: CallStatusType;
   updateCallStatus: (cs: CallStatusType) => void;
@@ -68,6 +73,7 @@ export function InCallActionButtons({
   localStream: MediaStream | null;
   peerConnection: RTCPeerConnection | null;
   setShowInCallUI: (inCallUI: boolean) => void;
+  ShowRemoteFeed: boolean;
 }) {
   return (
     <div className="flex justify-between items-center pt-2">
@@ -80,6 +86,7 @@ export function InCallActionButtons({
           localStream={localStream}
           updateCallStatus={updateCallStatus}
           peerConnection={peerConnection}
+          ShowRemoteFeed={ShowRemoteFeed}
         />
         <CameraToggle
           localFeedEl={localFeedEl}
@@ -87,17 +94,11 @@ export function InCallActionButtons({
           updateCallStatus={updateCallStatus}
           localStream={localStream}
           peerConnection={peerConnection}
+          ShowRemoteFeed={ShowRemoteFeed}
         />
       </div>
       <div className="absolute flex gap-2 justify-center items-center left-1/2 -translate-x-1/2">
-        <EndCall
-          localFeedEl={localFeedEl}
-          remoteFeedEl={remoteFeedEl}
-          peerConnection={peerConnection}
-          callStatus={callStatus}
-          updateCallStatus={updateCallStatus}
-          setShowInCallUI={setShowInCallUI}
-        />
+        <EndCall localFeedEl={localFeedEl} remoteFeedEl={remoteFeedEl} peerConnection={peerConnection} setShowInCallUI={setShowInCallUI} />
       </div>
       <div>
         <CallInfo message={""} />

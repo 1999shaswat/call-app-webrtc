@@ -7,15 +7,25 @@ import createPeerConnection from "@/rtcUtils/createPeerConn";
 import clientSocketListeners from "@/rtcUtils/clientSocketListeners";
 import { InCallUI } from "./InCallUI";
 import { OfferObject } from "@/helpers";
+import { toast } from "sonner";
 
-export function RTCCallPage() {
+export function RTCCallPage({ isRoomFull }: { isRoomFull: boolean }) {
   const { socket } = useAppContext();
-  const { callStatus, updateCallStatus, peerConnection, setPeerConnection, setLocalStream, remoteStream, setRemoteStream, setOfferData } =
-    useRtcContext();
+  const {
+    callStatus,
+    updateCallStatus,
+    peerConnection,
+    setPeerConnection,
+    localStream,
+    setLocalStream,
+    remoteStream,
+    setRemoteStream,
+    setOfferData,
+  } = useRtcContext();
 
   const [typeOfCall, setTypeOfCall] = useState("");
   const [availableCall, setAvailableCall] = useState<OfferObject | null>(null);
-  const [videoMessage, setVideoMessage] = useState("Please enable video to start!");
+  const [videoMessage, setVideoMessage] = useState("Working as expected");
 
   const [showInCallUI, setShowInCallUI] = useState(false);
 
@@ -60,7 +70,7 @@ export function RTCCallPage() {
 
   useEffect(() => {
     if (socket && socket.connected) {
-      console.log("useeffect typeOfCall:", typeOfCall);
+      // console.log("useeffect typeOfCall:", typeOfCall);
 
       if (typeOfCall && peerConnection) {
         clientSocketListeners(socket, typeOfCall, callStatus, updateCallStatus, peerConnection);
@@ -72,7 +82,42 @@ export function RTCCallPage() {
         socket.off("answerResponse");
       }
     };
-  }, [typeOfCall, peerConnection, socket]);
+  }, [typeOfCall, peerConnection, callStatus, socket]);
+
+  useEffect(() => {
+    const endCallAndCleanup = () => {
+      console.log("Call ended RTCCallPage");
+      setPeerConnection(null); // reset peerConnection
+      localStream?.getTracks().forEach((track) => {
+        track.stop();
+      });
+      setLocalStream(null);
+      setRemoteStream(null);
+      setOfferData(null);
+      updateCallStatus({});
+      setTypeOfCall("");
+      setAvailableCall(null);
+      setShowInCallUI(false);
+
+      toast.info("Call Ended");
+    };
+
+    if (socket && socket.connected) {
+      socket.on("callEnded", () => {
+        endCallAndCleanup();
+      });
+    }
+    return () => {
+      if (socket) {
+        socket.off("callEnded");
+      }
+    };
+  }, [socket, localStream]);
+
+  const call = async () => {
+    //call related stuff goes here
+    initCall("offer");
+  };
 
   useEffect(() => {
     if (remoteStream && peerConnection) {
@@ -81,49 +126,42 @@ export function RTCCallPage() {
     }
   }, [remoteStream, peerConnection]);
 
-  const call = async () => {
-    //call related stuff goes here
-    initCall("offer");
-  };
-
   const answer = () => {
     //answer related stuff goes here
     if (availableCall) {
       initCall("answer");
       setOfferData(availableCall);
+      if (socket && socket.connected) {
+        socket.emit("callAnswered");
+      }
     }
   };
 
   const reject = () => {
     // reject call
+    if (peerConnection) {
+      peerConnection.close();
+      peerConnection.onicecandidate = null;
+      peerConnection.ontrack = null;
+    }
+    if (socket && socket.connected) {
+      console.log("callEnded emmitted");
+      socket.emit("callEnded");
+    }
+    setShowInCallUI(false);
     setAvailableCall(null);
   };
 
   return (
-    <div>
-      <div className="flex justify-center items-center aspect-video pb-2 border-2 rounded-lg border-gray-200 hover:border-gray-300 RTCCallPage">
+    <>
+      <div className="flex justify-center items-center aspect-video pb-2 rounded-lg border border-[#E4E7EB] bg-[#FDFCFB]">
         {showInCallUI && <InCallUI typeOfCall={typeOfCall} setShowInCallUI={setShowInCallUI} setVideoMessage={setVideoMessage} />}
         {/* {!showInCallUI && <video className="preCallCamFeed w-full h-full bg-black scale-x-[-1] rounded-lg" ref={localVideoRef} autoPlay muted />} */}
         {!showInCallUI && (
-          <div className="flex w-full h-full justify-center items-center pb-2 noVideo">
-            <div className="flex-1 h-full bg-blue-50 p-4 rounded-md mt-4 text-sm text-gray-700">
-              <h3 className="font-semibold text-blue-600">How to Use This Room?</h3>
-              <ul className="list-disc pl-5 mt-2 space-y-1">
-                <li>
-                  Allow <b>camera & microphone</b> permissions.
-                </li>
-                <li>
-                  Share the <b>Room Code</b> with a friend.
-                </li>
-                <li>
-                  Click <b>Call</b> to start a video chat.
-                </li>
-                <li>
-                  Use <b>Chat</b> for messages.
-                </li>
-              </ul>
-            </div>
-            <div></div>
+          <div className="flex max-w-md items-center text-[#9AA5B1] text-center italic">
+            {!isRoomFull
+              ? "Just you for now 😎 Waiting for your partner to join! 🌟"
+              : "Ready to roll 🚀 Allow camera & mic, then start your call when ready. Use Chat for messages!"}
           </div>
         )}
       </div>
@@ -134,7 +172,7 @@ export function RTCCallPage() {
             {/* <CameraToggle isCamOn={isCamOn} /> */}
           </div>
           <div className="absolute flex gap-2 justify-center items-center left-1/2 -translate-x-1/2">
-            {!availableCall && <StartCall call={call} />}
+            {!availableCall && <StartCall call={call} isRoomFull={isRoomFull} />}
             {availableCall && <HandleIncomingCall answer={answer} reject={reject} />}
             {/* three button groups: call, answer - reject, disconnect */}
           </div>
@@ -143,6 +181,6 @@ export function RTCCallPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

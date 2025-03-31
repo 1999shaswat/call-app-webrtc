@@ -53,6 +53,7 @@ export interface JoinRoomResponse {
 export interface RoomUpdateResponse {
   isRoomFull: boolean;
   otherParty: string;
+  showMessage: boolean;
 }
 
 export interface RoomMessageData {
@@ -72,6 +73,8 @@ export interface ServerToClientEvents {
   newOfferAwaiting: (offerObj: OfferObject) => void;
   answerResponse: (offerToUpdate: OfferObject) => void;
   receivedIceCandidateFromServer: (iceCandidate: RTCIceCandidate) => void;
+  callEnded: () => void;
+  callAnswered: () => void;
 }
 
 // RTC
@@ -116,6 +119,8 @@ export interface ClientToServerEvents {
   newOffer: ({ offer, targetId }: { offer: RTCSessionDescriptionInit; targetId: string }) => void;
   newAnswer: (offerObj: OfferObject, ackFunction: (response: any) => void) => void;
   sendIceCandidateToServer: ({ iceCandidate, didIOffer }: { iceCandidate: RTCIceCandidate; didIOffer: boolean }) => void;
+  callEnded: () => void;
+  callAnswered: () => void;
 }
 
 export interface InterServerEvents {

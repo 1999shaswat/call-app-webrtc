@@ -16,7 +16,9 @@ const clientSocketListeners = (
     const copyCS = { ...callStatus };
     copyCS.answer = entireOfferObj.answer;
     copyCS.myRole = typeOfCall;
+    console.log(callStatus, "OLD");
     updateCallStatus(copyCS);
+    console.log(callStatus, "NEW");
   });
 
   socket.on("receivedIceCandidateFromServer", (iceC: RTCIceCandidate) => {

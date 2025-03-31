@@ -107,7 +107,11 @@ export function joinRoom(socketId: string, data: JoinRoomData) {
   return response;
 }
 
-export function sendRoomStatusData(io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>, roomId: string) {
+export function sendRoomStatusData(
+  io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>,
+  guestSocketId: string,
+  roomId: string,
+) {
   const room = roomsToSocketArr.get(roomId);
   if (!room || room.length == 0) {
     return;
@@ -116,19 +120,24 @@ export function sendRoomStatusData(io: Server<ClientToServerEvents, ServerToClie
   let roomUpdateResponse: RoomUpdateResponse = {
     isRoomFull: false,
     otherParty: "",
+    showMessage: false,
   };
 
   if (room.length < 2) {
     const id = room[0];
+    roomUpdateResponse.showMessage = guestSocketId.length !== 0 && id !== guestSocketId;
     io.to(id).emit("roomUpdate", roomUpdateResponse);
+    return;
   }
 
   const [id1, id2] = room;
   const isRoomFull = room.length == 2;
   roomUpdateResponse.isRoomFull = isRoomFull;
   roomUpdateResponse.otherParty = id2;
+  roomUpdateResponse.showMessage = guestSocketId.length !== 0 && id1 !== guestSocketId;
   io.to(id1).emit("roomUpdate", roomUpdateResponse);
   roomUpdateResponse.otherParty = id1;
+  roomUpdateResponse.showMessage = guestSocketId.length !== 0 && id2 !== guestSocketId;
   io.to(id2).emit("roomUpdate", roomUpdateResponse);
 }
 
@@ -155,7 +164,7 @@ export function handleDisconnect(io: Server<ClientToServerEvents, ServerToClient
     roomToOfferObj.delete(roomId);
   }
 
-  sendRoomStatusData(io, roomId);
+  sendRoomStatusData(io, socketId, roomId);
 }
 
 export function forwardMessage(
@@ -266,4 +275,22 @@ export function sendIceCandidateEvent(
     io.to(offerToUpdate.src).emit("receivedIceCandidateFromServer", iceCandidate);
   }
   roomToOfferObj.set(roomId, offerToUpdate);
+}
+
+export function endCallAndCleanup(io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>, socketId: string) {
+  const roomId = socketIdToRoom.get(socketId) ?? "";
+  const room = roomsToSocketArr.get(roomId);
+  if (room) {
+    room.forEach((id) => {
+      io.to(id).emit("callEnded");
+    });
+  }
+}
+export function sendCallAnswered(io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>, socketId: string) {
+  const roomId = socketIdToRoom.get(socketId) ?? "";
+  const room = roomsToSocketArr.get(roomId);
+  if (room) {
+    const destId = room.filter((id) => id != socketId)[0];
+    io.to(destId).emit("callAnswered");
+  }
 }

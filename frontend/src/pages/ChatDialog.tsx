@@ -10,8 +10,8 @@ export function ChatDialog({ isRoomFull, messages }: { isRoomFull: boolean; mess
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger asChild onClick={(e) => !isRoomFull && e.preventDefault()}>
-        <Button className="animate-shine bg-[#5E548E] text-white" disabled={!isRoomFull}>
+      <DialogTrigger asChild>
+        <Button className={`${isRoomFull ? "animate-shine" : ""} bg-[#5E548E] text-white`}>
           <MessageSquareMore />
           Chat
         </Button>

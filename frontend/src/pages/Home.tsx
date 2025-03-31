@@ -17,6 +17,7 @@ export default function Home({ setView }: { setView: (view: "home" | "room") => 
     if (socket) {
       socket.on("connect", () => {
         toast.success("Connected Successfully");
+        console.log(socket.id);
         socket.emit("getUserId");
       });
       socket.on("setUserId", (response) => setThisUserId(response.userId));

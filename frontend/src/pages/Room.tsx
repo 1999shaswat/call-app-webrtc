@@ -19,6 +19,9 @@ export default function Room() {
       socket.on("roomUpdate", (response) => {
         setOtherPartySocketId(response.otherParty);
         setIsRoomFull(response.isRoomFull);
+        if (response.showMessage) {
+          toast.info(response.isRoomFull ? "User Joined" : "User Left");
+        }
       });
       socket.on("roomMessage", (response) => {
         if (response.userId != thisUserId) {
@@ -50,7 +53,7 @@ export default function Room() {
         </div>
       </div>
       <RtcProvider>
-        <RTCCallPage />
+        <RTCCallPage isRoomFull={isRoomFull}/>
       </RtcProvider>
     </div>
   );

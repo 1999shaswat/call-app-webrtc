@@ -8,12 +8,14 @@ export function CameraToggle({
   localStream,
   updateCallStatus,
   peerConnection,
+  ShowRemoteFeed,
 }: {
   localFeedEl: React.RefObject<HTMLVideoElement>;
   callStatus: CallStatusType;
   localStream: MediaStream | null;
   updateCallStatus: (cs: CallStatusType) => void;
   peerConnection: RTCPeerConnection | null;
+  ShowRemoteFeed: boolean;
 }) {
   const startStopVideo = () => {
     if (!localStream || !peerConnection) {
@@ -39,6 +41,8 @@ export function CameraToggle({
       copyCallStatus.videoEnabled = true;
       updateCallStatus(copyCallStatus);
 
+      const tracks = localStream.getVideoTracks();
+      tracks.forEach((track) => (track.enabled = true));
       localStream.getTracks().forEach((track) => {
         peerConnection.addTrack(track, localStream);
       });
@@ -46,7 +50,7 @@ export function CameraToggle({
   };
 
   return (
-    <Button variant={callStatus.videoEnabled ? "default" : "secondary"} size="icon" onClick={startStopVideo}>
+    <Button variant={callStatus.videoEnabled ? "default" : "secondary"} size="icon" onClick={startStopVideo} disabled={!ShowRemoteFeed}>
       {callStatus.videoEnabled === true ? (
         <Camera className="h-6 w-6" />
       ) : callStatus.videoEnabled === false ? (

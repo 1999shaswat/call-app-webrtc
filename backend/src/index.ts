@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import { readFileSync } from "fs";
 import { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from "./events.js";
 import {
+  endCallAndCleanup,
   forwardMessage,
   getNewRoomId,
   getNewUserId,
@@ -9,6 +10,7 @@ import {
   joinRoom,
   newAnswerEvent,
   newOfferEvent,
+  sendCallAnswered,
   sendIceCandidateEvent,
   sendRoomStatusData,
 } from "./methods.js";
@@ -46,12 +48,12 @@ io.on("connection", (socket) => {
     const response = joinRoom(socket.id, data);
     io.to(socket.id).emit("joinRoom", response);
     if (response.status == "success") {
-      sendRoomStatusData(io, data.roomId);
+      sendRoomStatusData(io, socket.id, data.roomId);
     }
   });
 
   socket.on("requestRoomUpdate", (data) => {
-    sendRoomStatusData(io, data.roomId);
+    sendRoomStatusData(io, "", data.roomId);
   });
 
   socket.on("sendMessage", (data) => {
@@ -78,6 +80,14 @@ io.on("connection", (socket) => {
   socket.on("sendIceCandidateToServer", ({ iceCandidate, didIOffer }) => {
     console.log("sendIceCandidateToServer", iceCandidate, didIOffer);
     sendIceCandidateEvent(io, socket.id, iceCandidate, didIOffer);
+  });
+
+  socket.on("callEnded", () => {
+    endCallAndCleanup(io, socket.id);
+  });
+
+  socket.on("callAnswered", () => {
+    sendCallAnswered(io, socket.id);
   });
 
   // handle leave room / disconnect

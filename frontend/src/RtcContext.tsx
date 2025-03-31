@@ -6,19 +6,18 @@ export interface CallStatusType {
   videoEnabled?: boolean | null;
   answer?: RTCSessionDescription;
   myRole?: string;
-  inCall?: boolean;
 }
 interface RtcContextType {
   callStatus: CallStatusType;
   updateCallStatus: (cs: CallStatusType) => void;
   localStream: MediaStream | null;
-  setLocalStream: (stream: MediaStream) => void;
+  setLocalStream: (stream: MediaStream | null) => void;
   remoteStream: MediaStream | null;
-  setRemoteStream: (stream: MediaStream) => void;
+  setRemoteStream: (stream: MediaStream | null) => void;
   peerConnection: RTCPeerConnection | null;
-  setPeerConnection: (pc: RTCPeerConnection) => void;
+  setPeerConnection: (pc: RTCPeerConnection | null) => void;
   offerData: OfferObject | null;
-  setOfferData: (offerObj: OfferObject) => void;
+  setOfferData: (offerObj: OfferObject | null) => void;
 }
 
 const RtcContext = createContext<RtcContextType | undefined>(undefined);

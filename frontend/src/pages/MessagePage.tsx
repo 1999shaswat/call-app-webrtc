@@ -23,7 +23,7 @@ export function MessagePage({ isRoomFull, messages }: { isRoomFull: boolean; mes
       <div className="border border-[#E4E7EB] bg-[#FDFCFB] rounded-lg h-96 overflow-auto">
         {messages.length === 0 && (
           <div className="flex items-center justify-center h-full text-[#9AA5B1] italic">
-            {!isRoomFull ? "All quiet here. Waiting for others to join! 🌟👥" : "No messages yet. Let’s chat! ✨💬"}
+            {!isRoomFull ? "All quiet here. Waiting for your partner to join! 🌟👥" : "No messages yet. Let’s chat! ✨💬"}
           </div>
         )}
         {messages.map((m, ind) => (

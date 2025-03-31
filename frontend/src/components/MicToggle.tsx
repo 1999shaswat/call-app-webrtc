@@ -8,12 +8,14 @@ export function MicToggle({
   localStream,
   updateCallStatus,
   peerConnection,
+  ShowRemoteFeed,
 }: {
   localFeedEl: React.RefObject<HTMLVideoElement>;
   callStatus: CallStatusType;
   localStream: MediaStream | null;
   updateCallStatus: (cs: CallStatusType) => void;
   peerConnection: RTCPeerConnection | null;
+  ShowRemoteFeed: boolean;
 }) {
   const startStopAudio = () => {
     if (!localStream || !peerConnection) {
@@ -46,10 +48,10 @@ export function MicToggle({
     }
   };
   return (
-    <Button variant={callStatus.videoEnabled ? "default" : "secondary"} size="icon" onClick={startStopAudio}>
-      {callStatus.videoEnabled === true ? (
+    <Button variant={callStatus.audioEnabled ? "default" : "secondary"} size="icon" onClick={startStopAudio} disabled={!ShowRemoteFeed}>
+      {callStatus.audioEnabled === true ? (
         <Mic className="h-6 w-6" />
-      ) : callStatus.videoEnabled === false ? (
+      ) : callStatus.audioEnabled === false ? (
         <MicOff className="h-6 w-6" />
       ) : (
         <Mic className="h-6 w-6 animate-pulse" />

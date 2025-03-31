@@ -21,6 +21,7 @@ export function InCallUI({
 
   const [offerCreated, setOfferCreated] = useState(false);
   const [answerCreated, setAnswerCreated] = useState(false);
+  const [ShowRemoteFeed, setShowRemoteFeed] = useState(typeOfCall === "answer");
 
   //set localStream and remoteStream to element
   useEffect(() => {
@@ -56,9 +57,9 @@ export function InCallUI({
           const offer = await peerConnection.createOffer();
           peerConnection.setLocalDescription(offer);
           socket.emit("newOffer", { offer, targetId: otherPartySocketId });
-          setOfferCreated(true);
           setVideoMessage("Awaiting Answer");
           console.log("created offer, setLocalDesc, emitted offer, updated video message");
+          setOfferCreated(true);
         }
       };
 
@@ -72,7 +73,6 @@ export function InCallUI({
   useEffect(() => {
     if (typeOfCall === "offer") {
       const addAnswerAsync = async () => {
-        console.log(callStatus, "Callstatus");
         if (callStatus.answer) {
           await peerConnection?.setRemoteDescription(callStatus?.answer);
           console.log("answer added");
@@ -81,7 +81,7 @@ export function InCallUI({
 
       addAnswerAsync();
     }
-  }, [callStatus]);
+  }, [callStatus.answer]);
 
   useEffect(() => {
     if (typeOfCall === "answer") {
@@ -111,11 +111,63 @@ export function InCallUI({
     }
   }, [callStatus.videoEnabled, answerCreated]);
 
+  useEffect(() => {
+    if (!localStream || !peerConnection) {
+      return;
+    }
+    console.log("init audio video");
+    const copyCallStatus = { ...callStatus };
+    if (copyCallStatus.audioEnabled === null) {
+      console.log("Init audio!");
+      copyCallStatus.audioEnabled = true;
+      updateCallStatus(copyCallStatus);
+
+      //add the tracks
+      const tracks = localStream.getAudioTracks();
+      tracks.forEach((t) => (t.enabled = true));
+      localStream.getAudioTracks().forEach((t) => {
+        peerConnection.addTrack(t, localStream);
+      });
+    }
+    if (copyCallStatus.videoEnabled === null) {
+      // 3. Video is null, so we need to init
+      console.log("Init video!");
+      copyCallStatus.videoEnabled = true;
+      updateCallStatus(copyCallStatus);
+
+      const tracks = localStream.getVideoTracks();
+      tracks.forEach((track) => (track.enabled = true));
+      localStream.getTracks().forEach((track) => {
+        peerConnection.addTrack(track, localStream);
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (socket && socket.connected) {
+      socket.on("callAnswered", () => {
+        setShowRemoteFeed(true);
+      });
+    }
+
+    return () => {
+      if (socket) {
+        socket.off("callAnswered");
+      }
+    };
+  }, [socket]);
+
   return (
-    <div>
+    <>
       <div className="flex justify-center items-center aspect-video pb-2 border-2 rounded-lg border-gray-200 hover:border-gray-300 inCallUI">
         <video className="inCallUI localFeed w-full h-full bg-black scale-x-[-1] rounded-lg" ref={localFeedEl} autoPlay muted />
-        <video className="inCallUI remoteFeed w-full h-full bg-black scale-x-[-1] rounded-lg" ref={remoteFeedEl} autoPlay muted />
+        <video
+          className="inCallUI remoteFeed w-full h-full bg-black scale-x-[-1] rounded-lg"
+          ref={remoteFeedEl}
+          autoPlay
+          muted
+          hidden={!ShowRemoteFeed}
+        />
       </div>
       <InCallActionButtons
         callStatus={callStatus}
@@ -125,7 +177,8 @@ export function InCallUI({
         localStream={localStream}
         peerConnection={peerConnection}
         setShowInCallUI={setShowInCallUI}
+        ShowRemoteFeed={ShowRemoteFeed}
       />
-    </div>
+    </>
   );
 }
