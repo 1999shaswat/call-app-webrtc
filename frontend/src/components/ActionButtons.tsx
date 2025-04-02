@@ -100,9 +100,6 @@ export function InCallActionButtons({
       <div className="absolute flex gap-2 justify-center items-center left-1/2 -translate-x-1/2">
         <EndCall localFeedEl={localFeedEl} remoteFeedEl={remoteFeedEl} peerConnection={peerConnection} setShowInCallUI={setShowInCallUI} />
       </div>
-      <div>
-        <CallInfo message={""} />
-      </div>
     </div>
   );
 }

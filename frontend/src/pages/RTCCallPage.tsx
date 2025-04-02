@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAppContext } from "@/Context";
-import { CallInfo, HandleIncomingCall, StartCall } from "@/components/ActionButtons";
+import { CallInfo, HandleIncomingCall, InCallActionButtons, StartCall } from "@/components/ActionButtons";
 import { useRtcContext } from "@/RtcContext";
 import prepForCall from "@/rtcUtils/prepForCall";
 import createPeerConnection from "@/rtcUtils/createPeerConn";
@@ -10,6 +10,10 @@ import { OfferObject } from "@/helpers";
 import { toast } from "sonner";
 
 export function RTCCallPage({ isRoomFull }: { isRoomFull: boolean }) {
+  const remoteFeedEl = useRef<HTMLVideoElement>(null);
+  const localFeedEl = useRef<HTMLVideoElement>(null);
+  const [ShowRemoteFeed, setShowRemoteFeed] = useState(false);
+
   const { socket } = useAppContext();
   const {
     callStatus,
@@ -35,6 +39,24 @@ export function RTCCallPage({ isRoomFull }: { isRoomFull: boolean }) {
     console.log("gum access granted!");
     setTypeOfCall(typeOfCall); //offer or answer
   };
+
+  useEffect(() => {
+    setShowRemoteFeed(typeOfCall === "answer");
+  }, [typeOfCall]);
+
+  useEffect(() => {
+    if (socket && socket.connected) {
+      socket.on("callAnswered", () => {
+        setShowRemoteFeed(true);
+      });
+    }
+
+    return () => {
+      if (socket) {
+        socket.off("callAnswered");
+      }
+    };
+  }, [socket]);
 
   useEffect(() => {
     if (socket && socket.connected) {
@@ -154,8 +176,16 @@ export function RTCCallPage({ isRoomFull }: { isRoomFull: boolean }) {
 
   return (
     <>
-      <div className="flex justify-center items-center aspect-video pb-2 rounded-lg border border-[#E4E7EB] bg-[#FDFCFB]">
-        {showInCallUI && <InCallUI typeOfCall={typeOfCall} setShowInCallUI={setShowInCallUI} setVideoMessage={setVideoMessage} />}
+      <div className="flex justify-center items-center aspect-video rounded-lg border border-[#E4E7EB] bg-[#FDFCFB] RTCCallPage">
+        {showInCallUI && (
+          <InCallUI
+            typeOfCall={typeOfCall}
+            setVideoMessage={setVideoMessage}
+            remoteFeedEl={remoteFeedEl}
+            localFeedEl={localFeedEl}
+            ShowRemoteFeed={ShowRemoteFeed}
+          />
+        )}
         {/* {!showInCallUI && <video className="preCallCamFeed w-full h-full bg-black scale-x-[-1] rounded-lg" ref={localVideoRef} autoPlay muted />} */}
         {!showInCallUI && (
           <div className="flex max-w-md items-center text-[#9AA5B1] text-center italic">
@@ -165,22 +195,29 @@ export function RTCCallPage({ isRoomFull }: { isRoomFull: boolean }) {
           </div>
         )}
       </div>
-      {!showInCallUI && (
-        <div className="flex justify-between items-center pt-2">
-          <div className="flex justify-center items-center gap-2">
-            {/* <MicToggle isMicOn={isMicOn} /> */}
-            {/* <CameraToggle isCamOn={isCamOn} /> */}
-          </div>
+      <div className="flex justify-between items-center pt-2">
+        {!showInCallUI && (
           <div className="absolute flex gap-2 justify-center items-center left-1/2 -translate-x-1/2">
             {!availableCall && <StartCall call={call} isRoomFull={isRoomFull} />}
             {availableCall && <HandleIncomingCall answer={answer} reject={reject} />}
-            {/* three button groups: call, answer - reject, disconnect */}
           </div>
-          <div>
-            <CallInfo message={videoMessage} />
-          </div>
+        )}
+        {showInCallUI && (
+          <InCallActionButtons
+            callStatus={callStatus}
+            updateCallStatus={updateCallStatus}
+            localFeedEl={localFeedEl}
+            remoteFeedEl={remoteFeedEl}
+            localStream={localStream}
+            peerConnection={peerConnection}
+            setShowInCallUI={setShowInCallUI}
+            ShowRemoteFeed={ShowRemoteFeed}
+          />
+        )}
+        <div>
+          <CallInfo message={videoMessage} />
         </div>
-      )}
+      </div>
     </>
   );
 }

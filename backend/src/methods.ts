@@ -29,7 +29,7 @@ let socketIdToUserId = new Map<string, string>();
 
 // Define a custom alphabet and length for userId and roomId
 const generateUserId = customAlphabet("1234567890", 5);
-const generateRoomId = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", 5);
+const generateRoomId = customAlphabet("ABCDEFGHJKLMNOPQRSTUVWXYZ1234567890", 5);
 
 export function getNewUserId(socketId: string) {
   const userId = generateUserId();

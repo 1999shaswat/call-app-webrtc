@@ -1,27 +1,26 @@
-import { InCallActionButtons } from "@/components/ActionButtons";
 import { useAppContext } from "@/Context";
 import { useRtcContext } from "@/RtcContext";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // typeOfCall use it to handle answer and offer call component
 export function InCallUI({
   typeOfCall,
-  setShowInCallUI,
   setVideoMessage,
+  remoteFeedEl,
+  localFeedEl,
+  ShowRemoteFeed,
 }: {
   typeOfCall: string;
-  setShowInCallUI: (inCallUI: boolean) => void;
   setVideoMessage: (message: string) => void;
+  remoteFeedEl: React.RefObject<HTMLVideoElement>;
+  localFeedEl: React.RefObject<HTMLVideoElement>;
+  ShowRemoteFeed: boolean;
 }) {
   const { remoteStream, localStream, peerConnection, callStatus, updateCallStatus, offerData } = useRtcContext();
   const { socket, otherPartySocketId } = useAppContext();
 
-  const remoteFeedEl = useRef<HTMLVideoElement>(null);
-  const localFeedEl = useRef<HTMLVideoElement>(null);
-
   const [offerCreated, setOfferCreated] = useState(false);
   const [answerCreated, setAnswerCreated] = useState(false);
-  const [ShowRemoteFeed, setShowRemoteFeed] = useState(typeOfCall === "answer");
 
   //set localStream and remoteStream to element
   useEffect(() => {
@@ -111,6 +110,7 @@ export function InCallUI({
     }
   }, [callStatus.videoEnabled, answerCreated]);
 
+  // initializes audio and video
   useEffect(() => {
     if (!localStream || !peerConnection) {
       return;
@@ -143,42 +143,113 @@ export function InCallUI({
     }
   }, []);
 
+  // --- DRAGGABLE LOCAL FEED --- //
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const positionRef = useRef(position);
+
   useEffect(() => {
-    if (socket && socket.connected) {
-      socket.on("callAnswered", () => {
-        setShowRemoteFeed(true);
-      });
+    positionRef.current = position;
+  }, [position]);
+
+  // These handlers are defined as stable references (not recreated every render)
+  const handleDrag = (e: MouseEvent) => {
+    const localFeedSize = {
+      l: localFeedEl.current?.getBoundingClientRect().width || 0,
+      b: localFeedEl.current?.getBoundingClientRect().height || 0,
+    };
+    const container = remoteFeedEl.current?.getBoundingClientRect();
+    if (!container) return;
+
+    const newX = Math.max(0, Math.min(e.clientX - container.left - dragOffset.x, container.width - localFeedSize.l));
+    const newY = Math.max(0, Math.min(e.clientY - container.top - dragOffset.y, container.height - localFeedSize.b));
+
+    // For debugging
+    // console.log("Dragging at:", newX, newY);
+
+    setPosition({ x: newX, y: newY });
+  };
+
+  const handleDragEnd = useCallback(() => {
+    // console.log("Drag ended at:", positionRef.current);
+    setIsDragging(false);
+
+    const container = remoteFeedEl.current?.getBoundingClientRect();
+    const localSize = localFeedEl.current?.getBoundingClientRect();
+    if (!container || !localSize) return;
+
+    const corners = [
+      { x: 0, y: 0 }, // Top-left
+      { x: container.width - localSize.width, y: 0 }, // Top-right
+      { x: 0, y: container.height - localSize.height }, // Bottom-left
+      { x: container.width - localSize.width, y: container.height - localSize.height }, // Bottom-right
+    ];
+
+    const distances = corners.map((corner) => ({
+      ...corner,
+      distance: Math.hypot(positionRef.current.x - corner.x, positionRef.current.y - corner.y),
+    }));
+
+    const nearestCorner = distances.reduce((prev, curr) => (curr.distance < prev.distance ? curr : prev));
+    // console.log("Snapping to corner:", nearestCorner);
+
+    setPosition({ x: nearestCorner.x, y: nearestCorner.y });
+  }, [remoteFeedEl, localFeedEl]);
+
+  // Attach/Detach listeners automatically whenever isDragging changes
+  useEffect(() => {
+    if (isDragging) {
+      // console.log("Attaching event listeners");
+      window.addEventListener("mousemove", handleDrag);
+      window.addEventListener("mouseup", handleDragEnd);
+    } else {
+      // console.log("Removing event listeners");
+      window.removeEventListener("mousemove", handleDrag);
+      window.removeEventListener("mouseup", handleDragEnd);
     }
 
+    // Cleanup on unmount
     return () => {
-      if (socket) {
-        socket.off("callAnswered");
-      }
+      window.removeEventListener("mousemove", handleDrag);
+      window.removeEventListener("mouseup", handleDragEnd);
     };
-  }, [socket]);
+  }, [isDragging]);
 
+  const startDrag = (e: React.MouseEvent) => {
+    e.preventDefault();
+    console.log("Start drag");
+    setIsDragging(true);
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    setDragOffset({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
   return (
     <>
-      <div className="flex justify-center items-center aspect-video pb-2 border-2 rounded-lg border-gray-200 hover:border-gray-300 inCallUI">
-        <video className="inCallUI localFeed w-full h-full bg-black scale-x-[-1] rounded-lg" ref={localFeedEl} autoPlay muted />
-        <video
-          className="inCallUI remoteFeed w-full h-full bg-black scale-x-[-1] rounded-lg"
-          ref={remoteFeedEl}
-          autoPlay
-          muted
-          hidden={!ShowRemoteFeed}
-        />
+      <div className="flex justify-center items-center rounded-lg InCallUI">
+        <div className="relative w-[60vw]">
+          <video
+            className="inCallUI remoteFeed aspect-video object-cover w-full bg-black scale-x-[-1] rounded-lg"
+            ref={remoteFeedEl}
+            autoPlay
+            hidden={!ShowRemoteFeed || remoteStream == null || remoteStream.getVideoTracks().length === 0}
+          />
+          {/* <video */}
+          {/*   className={` inCallUI localFeed aspect-video object-cover bg-black scale-x-[-1] rounded-lg ${!ShowRemoteFeed || remoteStream == null || remoteStream.getVideoTracks().length === 0 ? "w-full" : "absolute top-0 left-0 h-36"}`} */}
+          {/*   ref={localFeedEl} */}
+          {/*   autoPlay */}
+          {/*   muted */}
+          {/* /> */}
+          <div
+            className={`inCallUI localFeed aspect-video object-cover bg-black scale-x-[-1] rounded-lg 
+                 ${!ShowRemoteFeed || remoteStream == null || remoteStream.getVideoTracks().length === 0 ? "w-full" : "absolute h-36 cursor-move top-0 left-0"}`}
+            style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
+            onMouseDown={startDrag}
+          >
+            <video ref={localFeedEl} autoPlay muted className="w-full h-full object-cover rounded-lg" />
+          </div>
+        </div>
       </div>
-      <InCallActionButtons
-        callStatus={callStatus}
-        updateCallStatus={updateCallStatus}
-        localFeedEl={localFeedEl}
-        remoteFeedEl={remoteFeedEl}
-        localStream={localStream}
-        peerConnection={peerConnection}
-        setShowInCallUI={setShowInCallUI}
-        ShowRemoteFeed={ShowRemoteFeed}
-      />
     </>
   );
 }

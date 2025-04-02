@@ -14,7 +14,7 @@ function App() {
     <AppProvider>
       <div className="bg-yellow-50 min-h-screen">
         <Toaster richColors />
-        <div className="h-screen flex items-center justify-center mx-auto max-w-2xl">
+        <div className="h-screen flex items-center justify-center mx-auto min-w-[42rem] w-fit">
           {view === "home" && <Home setView={setView} />}
           {view === "room" && <Room />}
         </div>
