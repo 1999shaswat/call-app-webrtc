@@ -15,9 +15,17 @@ import {
   sendRoomStatusData,
 } from "./methods.js";
 import { createServer } from "https";
-import express from "express";
+import express, { Request, Response } from "express";
 
 const app = express();
+
+app.get("/", (req: Request, res: Response) => {
+  res.redirect("/health");
+});
+
+app.get("/health", (req: Request, res: Response): void => {
+  res.status(200).send("OK");
+});
 
 const key = readFileSync("certs/cert.key");
 const cert = readFileSync("certs/cert.crt");
