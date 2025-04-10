@@ -12,7 +12,7 @@ function App() {
   // const [view, setView] = useState<"home" | "room">("room");
   return (
     <AppProvider>
-      <div className="bg-yellow-50 min-h-screen">
+      <div className="bodybg-colors min-h-screen">
         <Toaster richColors />
         <div className="h-screen flex items-center justify-center mx-auto min-w-[42rem] w-fit">
           {view === "home" && <Home setView={setView} />}

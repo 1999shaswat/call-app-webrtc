@@ -176,7 +176,7 @@ export function RTCCallPage({ isRoomFull }: { isRoomFull: boolean }) {
 
   return (
     <>
-      <div className="flex justify-center items-center aspect-video rounded-lg border border-[#E4E7EB] bg-[#FDFCFB] RTCCallPage">
+      <div className="flex justify-center items-center aspect-video rounded-lg border roomcontent-container-colors RTCCallPage">
         {showInCallUI && (
           <InCallUI
             typeOfCall={typeOfCall}
@@ -188,7 +188,7 @@ export function RTCCallPage({ isRoomFull }: { isRoomFull: boolean }) {
         )}
         {/* {!showInCallUI && <video className="preCallCamFeed w-full h-full bg-black scale-x-[-1] rounded-lg" ref={localVideoRef} autoPlay muted />} */}
         {!showInCallUI && (
-          <div className="flex max-w-md items-center text-[#9AA5B1] text-center italic">
+          <div className="flex max-w-md items-center roomcontent-container-text text-center italic">
             {!isRoomFull
               ? "Just you for now 😎 Waiting for your partner to join! 🌟"
               : "Ready to roll 🚀 Allow camera & mic, then start your call when ready. Use Chat for messages!"}

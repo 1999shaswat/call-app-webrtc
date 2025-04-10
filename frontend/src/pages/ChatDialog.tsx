@@ -11,7 +11,7 @@ export function ChatDialog({ isRoomFull, messages }: { isRoomFull: boolean; mess
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
-        <Button className={`${isRoomFull ? "animate-shine" : ""} bg-[#5E548E] text-white`}>
+        <Button className={`${isRoomFull ? "animate-shine" : ""} btn-style3`}>
           <MessageSquareMore />
           Chat
         </Button>

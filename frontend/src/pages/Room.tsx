@@ -41,12 +41,12 @@ export default function Room() {
   }, [socket]);
 
   return (
-    <div className="border rounded-2xl p-5 w-full shadow-xl bg-white">
+    <div className="border rounded-2xl p-5 w-full shadow-xl containerbg-colors">
       <Header />
-      <div className="bg-[#ffeded] border border-[#f3e1e1] text-[#5E548E] flex justify-between my-5 px-4 py-3 rounded-lg">
+      <div className="room-codesection-colors border flex justify-between my-5 px-4 py-3 rounded-lg">
         <div className="font-semibold flex items-center gap-1">
-          Room Code: <span className="font-normal text-[#3B4C5A]">{thisRoomId}</span>
-          <Copy className="cursor-pointer text-gray-400 hover:text-gray-600" onClick={() => copyToClipboard(thisRoomId)} size={16} />
+          Room Code: <span className="font-normal room-codesection-roomId">{thisRoomId}</span>
+          <Copy className="cursor-pointer copy-btn" onClick={() => copyToClipboard(thisRoomId)} size={16} />
         </div>
         <div className="font-semibold flex items-center gap-1">
           <ChatDialog isRoomFull={isRoomFull} messages={messages} />

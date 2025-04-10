@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -29,6 +30,7 @@
     --chart-5: 27 87% 67%;
     --radius: 0.5rem
   }
+
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
@@ -56,10 +58,12 @@
     --chart-5: 340 75% 55%
   }
 }
+
 @layer base {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -69,7 +73,128 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* colours */
+.bodybg-colors {
+  @apply bg-yellow-50;
+}
+
+.containerbg-colors {
+  @apply bg-white
+}
+
+
+/* header */
+.appheader-colors {
+  @apply border-[#E4E7EB] text-[#5E548E];
+}
+
+.appheader-userid-colors {
+  @apply text-gray-500;
+}
+
+.appheader-subheading-colors {
+  @apply text-[#9AA5B1];
+}
+
+/* create room */
+button.btn-style1 {
+  @apply bg-[#ded1f6] text-[#5E548E]
+}
+
+button.btn-style1:hover {
+  @apply bg-[#cabae9]
+}
+
+/* user-room input */
+.input-style1 {
+  @apply border-[#E4E7EB] text-[#3B4C5A]
+}
+
+/* join room*/
+button.btn-style2 {
+  @apply bg-[#F2C6D2] text-[#5E4B57]
+}
+
+button.btn-style2:hover {
+  @apply bg-[#ebb0c0]
+}
+
+/* copy roomcode  */
+.copy-colors {
+  @apply bg-[#dff7e8] text-[#3b5a4b]
+}
+
+.copy-msg {
+  @apply text-muted-foreground
+}
+
+.copy-roomId {
+  @apply text-gray-600
+}
+
+.copy-btn {
+  @apply text-gray-400
+}
+
+.copy-btn:hover {
+  @apply text-gray-600
+}
+
+/* Room */
+
+/* Room Code Section */
+.room-codesection-colors {
+  @apply bg-[#ffeded] border-[#f3e1e1] text-[#5E548E]
+}
+
+.room-codesection-roomId {
+  @apply text-[#3B4C5A]
+}
+
+/* room chat */
+button.btn-style3 {
+  @apply bg-[#5E548E] text-white
+}
+
+button.btn-style3:hover {
+  @apply bg-[#4C477B]
+}
+
+/* roomMessagesBg & roomMainAreaBg */
+.roomcontent-container-colors {
+  @apply border-[#E4E7EB] bg-[#FDFCFB]
+}
+
+.roomcontent-container-text {
+  @apply text-[#9AA5B1]
+}
+
+button.btn-style4 {
+  @apply bg-[#B8EBD0] text-[#35664C]
+}
+
+button.btn-style4:hover {
+  @apply bg-[#A4E0C3]
+}
+
+.msg-incoming {
+  @apply bg-[#DAE7F2] text-[#3B4C5A] border-[#9EBBD9]
+}
+
+.msg-incoming:hover {
+  @apply bg-[#B3D1E6]
+}
+
+.msg-outgoing {
+  @apply bg-[#D7CFE6] text-[#5E548E] border-[#C4B8DC]
+}
+
+.msg-outgoing:hover {
+  @apply bg-[#C4B8DC]
 }

@@ -1,18 +1,18 @@
-import { useAppContext } from "@/Context"
-import { MessageCircle } from "lucide-react"
+import { useAppContext } from "@/Context";
+import { MessageCircle } from "lucide-react";
 
 export default function Header() {
-  const { thisUserId } = useAppContext()
+  const { thisUserId } = useAppContext();
   return (
     <>
-      <div className='flex justify-between w-full pb-2'>
-        <div className='flex gap-2 items-center text-[#5E548E] text-2xl font-semibold border-b border-[#E4E7EB] pb-2'>
+      <div className="flex justify-between w-full pb-2">
+        <div className="flex gap-2 items-center text-2xl font-semibold border-b pb-2 appheader-colors">
           <MessageCircle />
-          Peer 2 Peer 
+          Peer 2 Peer
         </div>
-        <div className='text-gray-500'>#{thisUserId}</div>
+        <div className="appheader-userid-colors">#{thisUserId}</div>
       </div>
-      <div className='text-sm font-normal text-[#9AA5B1]'>Peer to peer implementation using WebRTC</div>
+      <div className="text-sm font-normal appheader-subheading-colors">Peer to peer implementation using WebRTC</div>
     </>
-  )
+  );
 }
