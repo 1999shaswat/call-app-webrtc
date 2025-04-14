@@ -79,50 +79,13 @@
   }
 }
 
-/* colours */
-.bodybg-colors {
-  @apply bg-yellow-50;
-}
+/* ~~~ COLOURS ~~~ */
 
-.containerbg-colors {
-  @apply bg-white
-}
-
-
-/* header */
-.appheader-colors {
-  @apply border-[#E4E7EB] text-[#5E548E];
-}
-
-.appheader-userid-colors {
-  @apply text-gray-500;
-}
-
-.appheader-subheading-colors {
-  @apply text-[#9AA5B1];
-}
-
-/* create room */
-button.btn-style1 {
-  @apply bg-[#ded1f6] text-[#5E548E]
-}
-
-button.btn-style1:hover {
-  @apply bg-[#cabae9]
-}
+/* ~~~ FIXED ~~~ */
 
 /* user-room input */
 .input-style1 {
   @apply border-[#E4E7EB] text-[#3B4C5A]
-}
-
-/* join room*/
-button.btn-style2 {
-  @apply bg-[#F2C6D2] text-[#5E4B57]
-}
-
-button.btn-style2:hover {
-  @apply bg-[#ebb0c0]
 }
 
 /* copy roomcode  */
@@ -146,55 +109,92 @@ button.btn-style2:hover {
   @apply text-gray-600
 }
 
-/* Room */
+/* ~~~ THEMED ~~~ */
+
+/* ~~~ Home ~~~ */
+
+.bodybg-colors {
+  @apply bg-[#FFF5F5];
+}
+
+.containerbg-colors {
+  @apply bg-white;
+}
+
+/* Header */
+.appheader-colors {
+  @apply border-[#B8C0E3] text-[#2F3C7E];
+}
+
+.appheader-userid-colors {
+  @apply text-[#4C5A99];
+}
+
+.appheader-subheading-colors {
+  @apply text-[#A0A6C3];
+}
+
+/* Create Room */
+button.btn-style1 {
+  @apply bg-[#AEBFF2] text-[#2F3C7E];
+}
+button.btn-style1:hover {
+  @apply bg-[#9EAEE3];
+}
+
+/* Join Room */
+button.btn-style2 {
+  @apply bg-[#FBCFD3] text-[#2F3C7E];
+}
+button.btn-style2:hover {
+  @apply bg-[#F6BFC5];
+}
 
 /* Room Code Section */
 .room-codesection-colors {
-  @apply bg-[#ffeded] border-[#f3e1e1] text-[#5E548E]
+  @apply bg-[#E9E8FC] border-[#C8C6EF] text-[#2F3C7E];
 }
-
 .room-codesection-roomId {
-  @apply text-[#3B4C5A]
+  @apply text-[#2F3C7E];
 }
 
-/* room chat */
+/* Chat Send Button */
 button.btn-style3 {
-  @apply bg-[#5E548E] text-white
+  @apply bg-[#2F3C7E] text-white;
 }
-
 button.btn-style3:hover {
-  @apply bg-[#4C477B]
+  @apply bg-[#262F6B];
 }
 
-/* roomMessagesBg & roomMainAreaBg */
+/* Room Container */
 .roomcontent-container-colors {
-  @apply border-[#E4E7EB] bg-[#FDFCFB]
+  @apply border-[#D8E0F3] bg-[#F9FBFF]; 
 }
 
 .roomcontent-container-text {
-  @apply text-[#9AA5B1]
+  @apply text-[#6C7BAE]; 
 }
 
+/* Secondary Action */
 button.btn-style4 {
-  @apply bg-[#B8EBD0] text-[#35664C]
+  @apply bg-[#BED8F8] text-[#2F3C7E];
 }
-
 button.btn-style4:hover {
-  @apply bg-[#A4E0C3]
+  @apply bg-[#A9C7F0];
 }
 
+/* Incoming Messages */
 .msg-incoming {
-  @apply bg-[#DAE7F2] text-[#3B4C5A] border-[#9EBBD9]
+  @apply bg-[#D6E3FA] text-[#2F3C7E] border-[#AFC4E6];
 }
-
 .msg-incoming:hover {
-  @apply bg-[#B3D1E6]
+  @apply bg-[#C2D4F2];
 }
 
+/* Outgoing Messages */
 .msg-outgoing {
-  @apply bg-[#D7CFE6] text-[#5E548E] border-[#C4B8DC]
+  @apply bg-[#E2DFF3] text-[#2F3C7E] border-[#C3BCED];
 }
-
 .msg-outgoing:hover {
-  @apply bg-[#C4B8DC]
+  @apply bg-[#D0CDEF];
 }
